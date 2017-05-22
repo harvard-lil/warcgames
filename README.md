@@ -14,6 +14,8 @@ Install and Run
 
 3) `cd warcgames`
 
+4) `cat hosts | sudo tee -a /etc/hosts` (or otherwise arrange for the domains in the `hosts` file to resolve to localhost)
+
 4) `python challenge.py` to see a list of challenges.
 
 5) `python challenge.py same_domain` to start the first challenge.
