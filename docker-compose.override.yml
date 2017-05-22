@@ -1,0 +1,35 @@
+version: '2'
+
+services:
+    app:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    recorder:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    webagg:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    nginx:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    shepherd:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    redis:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    mailserver:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
+    data:
+        extra_hosts:
+           - "attacker.test:10.0.2.2"
+
