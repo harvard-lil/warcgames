@@ -48,11 +48,11 @@ def set_env(**kwargs):
     with open(env_path, 'w') as out:
         out.write(env_file)
 
-# def get_input(*args):
-#     try:
-#         return raw_input(*args)
-#     except NameError:
-#         return input(*args)
+def get_input(*args):
+    try:
+        return raw_input(*args)
+    except NameError:
+        return input(*args)
 
 
 ### STANDARD INIT SCRIPT ###
@@ -89,22 +89,11 @@ def launch(attacker_port, debug):
         docker_thread.start()
     else:
         subprocess.check_call(docker_command+['-d'])
-    print("Webrecorder is now running: http://%s/" % wr_host)
+    print("Webrecorder is now running:   http://%s/" % wr_host)
+    print("Attack server is now running: http://attacker.test:%s/" % attacker_port)
 
-    os.chdir(attacker_path)
-    try:
-        httpd = SocketServer.TCPServer(('', attacker_port), SimpleHTTPRequestHandler)
-    except OSError:
-        print("Unable to bind to port %s. Use --attacker-port to bind to an alternate port." % attacker_port)
-        return
-    # threading.Thread(target=httpd.serve_forever, daemon=True).start()
-    print("Running attack server: http://attacker.test:%s/\nHit ctrl-c to exit." % attacker_port)
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        cleanup()
+    get_input("Hit a key to quit ...")
+    cleanup()
 
 def cleanup():
     subprocess.call(['docker-compose', 'down'])

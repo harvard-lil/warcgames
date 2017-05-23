@@ -1,35 +1,18 @@
 version: '2'
 
 services:
-    app:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
+    attacker:
+        build: ./webrecorder
+        command: python /code/attacker_server.py
+        depends_on:
+            - app
 
-    recorder:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
+        volumes:
+            - ../:/code/
+        ports:
+            - "8090:8090"
 
-    webagg:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
-
-    nginx:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
-
-    shepherd:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
-
-    redis:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
-
-    mailserver:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
-
-    data:
-        extra_hosts:
-           - "attacker.test:10.0.2.2"
-
+        networks:
+          default:
+            aliases:
+             - attacker.test
