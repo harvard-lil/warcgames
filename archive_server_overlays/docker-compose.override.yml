@@ -1,6 +1,14 @@
 version: '2'
 
 services:
+    app:
+        volumes:
+            - ../archive_server_overlays/:/overlays/
+            - ../archive_server_overlays/archive_server_templates/:/code/archive_server_templates/
+        environment:
+            WR_TEMPLATE_PKG: archive_server_templates
+            WR_USER_CONFIG: /overlays/user_config.yml
+
     attacker:
         build: ./webrecorder
         command: python /code/attacker_server.py

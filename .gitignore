@@ -1,1 +1,3 @@
 .idea
+archive_server_overlays/archive_server_templates/templates
+*.pyc

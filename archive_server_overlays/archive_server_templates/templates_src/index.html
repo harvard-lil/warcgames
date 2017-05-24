@@ -1,0 +1,98 @@
+{% extends "main_bootstrap.html" %}
+
+{% block head %}
+
+{{ super() }}
+
+{% assets "user-js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% assets "user-css" %}
+<link href="{{ ASSET_URL }}" rel="stylesheet" />
+{% endassets %}
+
+
+
+
+{% include 'header.html' %}
+
+
+{% endblock %}
+
+{% block body %}
+
+<div class="container wr-content">
+    {% block message %}
+
+    {{ super() }}
+
+    {% endblock %}
+
+    {% block content %}
+    {% if metadata.type == 'player' %}
+    {% include 'player_index.html' %}
+    {% else %}
+    <div class="row top-buffer">
+        <h1 class="text-center"><strong>{{ metadata.product }}</strong></h1>
+    </div>
+
+    <div class="row">
+        <h4 class="text-center" style="margin-bottom: 30px">A simplified web archive designed to explore security issues in web archiving.</h4>
+    </div>
+
+    <div class="row">
+        {% include 'challenge.html' %}
+    </div>
+
+    {% include 'homepage_message.html' %}
+
+    <div class="row top-buffer-lg bottom-buffer-lg">
+        {% include 'homepage_recorder.html' %}
+    </div>
+
+    {% if is_anon and invites_enabled %}
+    <div class="row top-buffer">
+        <div class="col-md-offset-1 col-md-10">
+            <h4>We are inviting users to build their own archives as we test this service.</h4>
+            <h4><a href="/_register">Request an invite to sign-up</a></h4>
+        </div>
+    </div>
+    {% endif %}
+
+        <!--
+    <div class="row">
+        <div id="news-alert" class='alert alert-info col-xs-6 col-xs-push-3' role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <div class="wr-alert-logo">
+                <img src="/static/images/logo.png" alt="Webrecorder logo">
+            </div>
+            <div class="wr-alert-info">
+                <h5><strong>New!</strong> Browse your archives offline with Webrecorder Desktop Player App</h5>
+                <p>
+                    <a href="https://github.com/webrecorder/webrecorderplayer-electron/releases/latest" target="_blank">Download the desktop app&nbsp;&raquo;</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <p class="text-center"><a id="collapse-vid-toggle" href="#collapse-vid" data-toggle="collapse" aria-controls="collapse-vid" aria-expanded="false">
+    <span class="glyphicon glyphicon-triangle-right"></span><span class="glyphicon glyphicon-triangle-bottom"></span>
+        Watch Webrecorder Introductory Video</a></p>
+
+    <div class="text-center collapse" id="collapse-vid">
+        <iframe width="854" height="480" src="https://www.youtube.com/embed/n3SqusABXEk" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    -->
+
+    {% endif %}
+
+    {% endblock %}
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}
+
+{% endblock %}

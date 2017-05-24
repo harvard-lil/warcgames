@@ -1,12 +1,13 @@
 from __future__ import print_function
 
 import argparse
+from glob import glob
+
 import os
 import socket
 import subprocess
 import sys
 import re
-import threading
 from collections import OrderedDict
 
 try:
@@ -21,11 +22,15 @@ except ImportError:
 import shutil
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
-webrecorder_dir = os.path.join(current_dir, 'webrecorder')
-init_script_path = os.path.join(webrecorder_dir, 'init-default.sh')
-env_path = os.path.join(webrecorder_dir, 'wr.env')
+archive_server_dir = os.path.join(current_dir, 'archive_server')
+init_script_path = os.path.join(archive_server_dir, 'init-default.sh')
+env_path = os.path.join(archive_server_dir, 'wr.env')
 hosts_path = os.path.join(current_dir, 'hosts')
 attacker_path = os.path.join(current_dir, 'attacker_files')
+overlay_path = os.path.join(current_dir, 'archive_server_overlays')
+orig_template_dir = os.path.join(archive_server_dir, 'webrecorder/webrecorder/templates')
+overlay_template_dir = os.path.join(overlay_path, 'archive_server_templates/templates_src')
+output_template_dir = os.path.join(overlay_path, 'archive_server_templates/templates')
 PY2 = sys.version_info[0] < 3
 wr_host = "warcgames.test:8089"
 
@@ -38,15 +43,10 @@ def read_file(path):
         return in_file.read()
 
 def set_env(**kwargs):
-    env_file = read_file(env_path)
-    for key, val in kwargs.items():
-        pattern = r'^\s*'+key+r'\s*=\s*'
-        if re.search(pattern, env_file):
-            env_file = re.sub(pattern, val, env_file)
-        else:
-            env_file += "\n%s=%s\n" % (key, val)
-    with open(env_path, 'w') as out:
-        out.write(env_file)
+    with open(env_path, 'a') as out:
+        out.write("\n# warcgames additions\n")
+        for key, val in kwargs.items():
+            out.write("%s=%s\n" % (key, val))
 
 def get_input(*args):
     try:
@@ -74,29 +74,45 @@ def init():
             print("%s does not resolve. Please add the following to /etc/hosts:\n\n%s" % (host, hosts_file))
             sys.exit(1)
 
-    # init webrecorder
+    # init archive_server
     if os.path.exists(env_path):
         os.unlink(env_path)
-        shutil.rmtree(os.path.join(webrecorder_dir, 'data'))
+        shutil.rmtree(os.path.join(archive_server_dir, 'data'))
     subprocess.check_call(['sh', init_script_path])
 
+    # copy templates
+    if os.path.exists(output_template_dir):
+        shutil.rmtree(output_template_dir)
+    os.mkdir(output_template_dir)
+    for filename in glob(os.path.join(orig_template_dir, '*.html')):
+        shutil.copy(filename, output_template_dir)
+    for filename in glob(os.path.join(overlay_template_dir, '*.html')):
+        shutil.copy(filename, output_template_dir)
+
+def configure_challenge(challenge_name):
+    challenge = challenges[challenge_name]
+    challenge_config_function = globals()['challenge_'+challenge_name]
+    challenge_config_function()
+    print("Challenge: %s\n\n%s\n\n" % (challenge['short_message'], challenge['message']))
+    with open(os.path.join(output_template_dir, "challenge.html"), 'w') as out:
+        out.write("""
+            <h2>Current challenge: %s</h2>
+            <pre>%s</pre>
+        """ % (challenge['short_message'], challenge['message']))
+
+
 def launch(attacker_port, debug):
-    os.chdir(webrecorder_dir)
-    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', '../docker-compose.override.yml', 'up']
+    os.chdir(archive_server_dir)
+    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', '../archive_server_overlays/docker-compose.override.yml', 'up']
     if debug:
-        docker_thread = threading.Thread(target=lambda: subprocess.check_call(docker_command))
-        docker_thread.daemon=True
-        docker_thread.start()
+        subprocess.check_call(docker_command)
     else:
         subprocess.check_call(docker_command+['-d'])
-    print("Webrecorder is now running:   http://%s/" % wr_host)
-    print("Attack server is now running: http://attacker.test:%s/" % attacker_port)
+        print("Archive server is now running:   http://%s/" % wr_host)
+        print("Attack server is now running:    http://attacker.test:%s/" % attacker_port)
+        get_input("Hit a key to quit ...")
+        subprocess.call(['docker-compose', 'down'])
 
-    get_input("Hit a key to quit ...")
-    cleanup()
-
-def cleanup():
-    subprocess.call(['docker-compose', 'down'])
 
 ### CHALLENGES ###
 
@@ -108,11 +124,11 @@ def challenge_same_subdomain():
 
 challenges = OrderedDict([
     ["same_domain", {
-        "short_message": "Use cross-site scripting to control a Webrecorder account.",
+        "short_message": "Use cross-site scripting to control an archive user's account.",
         "message": """
-            In this challenge, Webrecorder is configured to serve the user interface and captured web archive content
-            on the same domain. This means that captured web content can fully control the Webrecorder account of any
-            logged-in user who views a capture, via cross-site scripting.
+            In this challenge, the archive server is configured to serve the user interface and captured web archive content
+            on the same domain. This means that captured web content can fully control the user account of any
+            logged-in user who views a capture.
             
             Your mission is to edit attacker_files/challenge_same_domain.html so that, when 
             http://attacker.test:8000/challenge_same_domain.html is captured and played back, it deletes all archives belonging
@@ -122,7 +138,7 @@ challenges = OrderedDict([
     ["same_subdomain", {
         "short_message": "Use session fixation to log in a viewer as another user.",
         "message": """
-            In this challenge, Webrecorder is configured to serve the user dashboard at %s and 
+            In this challenge, the archive server is configured to serve the user dashboard at %s and 
             captured web archive content at content.%s. This means that captured web content can use
             session fixation to log in a visitor to a web archive as a different user. 
     
@@ -142,25 +158,22 @@ def main():
                         help='name of challenge to run',
                         choices=challenges.keys(),
                         nargs='?')
-    parser.add_argument('--attacker-port',
-                        # dest='attacker_port',
-                        help='port to serve attacker files',
-                        default=8090,
-                        type=int)
+    # parser.add_argument('--attacker-port',
+    #                     # dest='attacker_port',
+    #                     help='port to serve attacker files',
+    #                     default=8090,
+    #                     type=int)
     parser.add_argument('--debug',
-                        help='print Webrecorder debug output to console',
+                        help='print debug output to console',
                         action='store_true')
     args = parser.parse_args()
     if not args.challenge_name:
         print("Please supply a challenge name:\n\n"+"\n".join("* %s: %s" % (short_name, c['short_message']) for short_name, c in challenges.items()))
         sys.exit()
-    challenge = challenges[args.challenge_name]
-    challenge_config_function = globals()['challenge_'+args.challenge_name]
 
     init()
-    challenge_config_function()
-    print("Challenge: %s\n\n%s\n\n" % (challenge['short_message'], challenge['message']))
-    launch(attacker_port=args.attacker_port, debug=args.debug)
+    configure_challenge(args.challenge_name)
+    launch(attacker_port=8090, debug=args.debug)
 
 
 

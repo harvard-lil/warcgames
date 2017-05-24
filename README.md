@@ -2,8 +2,8 @@ WARCgames
 =========
 
 Building secure web archival tools is hard, because web archives have to ingest and play back so much attacker-submitted
-content. WARCgames challenges you to attack insecure web archive services running on your local computer, and thereby
-learn to create secure ones.
+content. WARCgames challenges you to attack deliberately-insecure, simplified web archive services running on your local
+computer, and thereby learn to create secure ones.
 
 Install and Run
 ---------------
