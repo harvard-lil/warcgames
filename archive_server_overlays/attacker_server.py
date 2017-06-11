@@ -10,7 +10,7 @@ except ImportError:
     import socketserver as SocketServer
 
 current_dir = os.path.abspath(os.path.dirname(__file__))
-attacker_path = os.path.join(current_dir, 'attacker_files')
+attacker_path = os.path.join(os.path.dirname(current_dir), 'challenges')
 attacker_port = 8090
 
 def main():

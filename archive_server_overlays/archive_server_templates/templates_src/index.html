@@ -38,11 +38,20 @@
     </div>
 
     <div class="row">
-        <h4 class="text-center" style="margin-bottom: 30px">A simplified web archive designed to explore security issues in web archiving.</h4>
+        <h4 class="text-center" style="margin-bottom: 30px">A simplified web archive to explore security issues in web archiving.</h4>
     </div>
 
-    <div class="row">
+    <div class="alert alert-danger" role="alert">
         {% include 'challenge.html' %}
+    </div>
+
+    <div class="alert alert-success" role="alert">
+      <h4>Available Logins</h4>
+      <p>You can use these logins if necessary to complete the current challenge:</p>
+      <ul>
+        <li>David Lightman: david - Password1</li>
+        <li>Jennifer Mack: jennifer - Password1</li>
+      </ul>
     </div>
 
     {% include 'homepage_message.html' %}
