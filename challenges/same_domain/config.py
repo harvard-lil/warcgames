@@ -1,4 +1,4 @@
-CONTENT_HOST = "warcgames.test:8089"
+CONTENT_HOST = ""  # blank means same as app host
 short_message = "Use cross-site scripting (XSS) to control an archive user's account."
 message = """
     <p>In this challenge, the archive server is configured to serve the user interface and captured web archive content

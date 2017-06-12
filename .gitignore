@@ -4,3 +4,4 @@
 # files created by challenges
 support_files/archive_server_templates/templates
 support_files/challenge_wsgi.py
+support_files/user_config.yml
