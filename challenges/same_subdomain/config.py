@@ -5,9 +5,14 @@ message = """
     of the user dashboard. This means that captured pages can overwrite session cookies with new top-level cookies.</p>
 
     <p>Your mission is to edit {challenge_path}/challenge.html so that, when 
-    <a href="{challenge_url}challenge.html">{challenge_url}challenge.html</a> is captured or played back,
+    <a href="{challenge_url}">{challenge_url}</a> is captured or played back,
     the current user is logged out.</p>
     
     <p><b>Bonus:</b> With a bit more effort, you can log in the user as a different user -- for example, any visitor
     could be logged into an account controlled by the attacker.</p>
+    
+    <p><b>Learn more:</b></p>
+    <ul>
+        <li><a href="https://github.com/blog/1466-yummy-cookies-across-domains">Github: Yummy cookies across domains</a></li>
+    </ul>
 """

@@ -22,16 +22,17 @@ import shutil
 
 # paths
 current_dir = os.path.abspath(os.path.dirname(__file__))
-archive_server_dir = os.path.join(current_dir, 'archive_server')
+archive_server_dir = os.path.join(current_dir, 'contrib/webrecorder')
+support_files_dir = os.path.join(current_dir, 'support_files')
 init_script_path = os.path.join(archive_server_dir, 'init-default.sh')
 env_path = os.path.join(archive_server_dir, 'wr.env')
-hosts_path = os.path.join(current_dir, 'hosts')
-attacker_path = os.path.join(current_dir, 'attacker_files')
-overlay_path = os.path.join(current_dir, 'archive_server_overlays')
-challenges_path = os.path.join(current_dir, 'challenges')
+hosts_path = os.path.join(support_files_dir, 'hosts')
+attacker_files_dir = os.path.join(current_dir, 'attacker_files')
+user_config_path = os.path.join(support_files_dir, 'user_config.yml')
+challenges_dir = os.path.join(current_dir, 'challenges')
 orig_template_dir = os.path.join(archive_server_dir, 'webrecorder/webrecorder/templates')
-overlay_template_dir = os.path.join(overlay_path, 'archive_server_templates/templates_src')
-output_template_dir = os.path.join(overlay_path, 'archive_server_templates/templates')
+overlay_template_dir = os.path.join(support_files_dir, 'archive_server_templates/templates_src')
+output_template_dir = os.path.join(support_files_dir, 'archive_server_templates/templates')
 
 # constants
 PY2 = sys.version_info[0] < 3
@@ -116,12 +117,17 @@ def init():
 
 def configure_challenge(challenge):
     config = challenge['config']
+    print("Challenge: %s" % (config.short_message))
+
+    # write env
     set_env(
         CONTENT_HOST=getattr(config, 'CONTENT_HOST', DEFAULT_CONTENT_HOST)
     )
-    print("Challenge: %s" % (config.short_message))
+
+    # write homepage message
+    challenge_url = "http://%s/%s/challenge.html" % (ATTACKER_HOST, challenge['name'])
     message = config.message.format(
-        challenge_url="http://%s/%s/" % (ATTACKER_HOST, challenge['name']),
+        challenge_url=challenge_url,
         challenge_path=challenge['path']
     )
     with open(os.path.join(output_template_dir, "challenge.html"), 'w') as out:
@@ -130,17 +136,27 @@ def configure_challenge(challenge):
             %s
         """ % (config.short_message, message))
 
+    # write user_config.yml
+    with open(user_config_path, 'w') as out:
+        out.write("metadata:\n"
+                  "    product: WARCgames Archive Server\n"
+                  "    target_url: %s\n" % (challenge_url))
+
+    # write wsgi file
+    wsgi_path = os.path.join(challenge['path'], 'wsgi.py')
+    if os.path.exists(wsgi_path):
+        shutil.copy(wsgi_path, os.path.join(support_files_dir, 'challenge_wsgi.py'))
 
 def launch(debug):
     os.chdir(archive_server_dir)
-    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', '../archive_server_overlays/docker-compose.override.yml', 'up']
+    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'), 'up']
     if debug:
         subprocess.check_call(docker_command)
     else:
         subprocess.check_call(docker_command+['-d'])
         print("Archive server is now running:   http://%s/" % APP_HOST)
         print("Attack server is now running:    http://%s/" % ATTACKER_HOST)
-        get_input("Hit a key to quit ...")
+        get_input("Press return to quit ...")
         print("Shutting down Docker containers ...")
         subprocess.call(['docker-compose', 'down'])
 
@@ -152,9 +168,9 @@ def load_challenges():
         Load challenges from challenges dir. 
     """
     challenges = OrderedDict()
-    challenge_names = next(os.walk(challenges_path))[1]
+    challenge_names = next(os.walk(challenges_dir))[1]
     for challenge_name in challenge_names:
-        challenge_path = os.path.join(challenges_path, challenge_name)
+        challenge_path = os.path.join(challenges_dir, challenge_name)
         challenges[challenge_name] = {
             'config': import_path(challenge_name+'.config', os.path.join(challenge_path, 'config.py')),
             'name': challenge_name,

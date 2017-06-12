@@ -1,3 +1,6 @@
 .idea
-archive_server_overlays/archive_server_templates/templates
 *.pyc
+
+# files created by challenges
+support_files/archive_server_templates/templates
+support_files/challenge_wsgi.py

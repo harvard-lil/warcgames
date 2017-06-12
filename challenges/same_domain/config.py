@@ -6,6 +6,6 @@ message = """
     archive server.</p>
 
     <p>Your mission is to edit {challenge_path}/challenge.html so that, when 
-    <a href="{challenge_url}challenge.html">{challenge_url}challenge.html</a> is captured or played back,
+    <a href="{challenge_url}">{challenge_url}</a> is captured or played back,
     the current user's account is deleted.</p>
 """

@@ -1,3 +1,4 @@
 [submodule "webrecorder"]
-	path = archive_server
+	path = contrib/webrecorder
 	url = https://github.com/webrecorder/webrecorder
+	branch = csrf-token

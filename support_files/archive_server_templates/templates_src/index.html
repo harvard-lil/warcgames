@@ -1,0 +1,76 @@
+{% extends "main_bootstrap.html" %}
+
+{% block head %}
+
+{{ super() }}
+
+{% assets "user-js" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% assets "user-css" %}
+<link href="{{ ASSET_URL }}" rel="stylesheet" />
+{% endassets %}
+
+
+
+
+{% include 'header.html' %}
+
+
+{% endblock %}
+
+{% block body %}
+
+<div class="container wr-content">
+    {% block message %}
+
+    {{ super() }}
+
+    {% endblock %}
+
+    {% block content %}
+    {% if metadata.type == 'player' %}
+    {% include 'player_index.html' %}
+    {% else %}
+    <div class="row top-buffer">
+        <h1 class="text-center"><strong>{{ metadata.product }}</strong></h1>
+    </div>
+
+    <div class="row">
+        <h4 class="text-center" style="margin-bottom: 30px">A simplified web archive to explore security issues in web archiving.</h4>
+    </div>
+
+    <div class="alert alert-danger" role="alert">
+        {% include 'challenge.html' %}
+    </div>
+
+    <div class="alert alert-success" role="alert">
+      <h4>Available Logins</h4>
+      <p>You can use these logins if necessary to complete the current challenge:</p>
+      <ul>
+        <li>David Lightman: david - Password1</li>
+        <li>Jennifer Mack: jennifer - Password1</li>
+      </ul>
+    </div>
+
+    {% include 'homepage_message.html' %}
+
+    <div class="row top-buffer-lg bottom-buffer-lg">
+        {% include 'homepage_recorder.html' %}
+    </div>
+
+    <script>
+        $('input[name="url"]').val('{{ metadata.target_url }}');
+    </script>
+
+    {% endif %}
+
+    {% endblock %}
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}
+
+{% endblock %}

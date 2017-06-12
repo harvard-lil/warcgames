@@ -1,18 +1,15 @@
 <html>
 <head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script>
-    $(function(){
-      var deleteUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/$delete';
-      $('#deleteForm').attr('action', deleteUrl);
-      $('#deleteForm').submit();
-    });
-  </script>
 </head>
 <body>
-  <p>When archived, the script tag in this page should use cross-site request forgery to delete the user account.</p>
+  <p>When archived, the script tag in this page should use cross-site request forgery to delete the current user account.</p>
   <form id="deleteForm" method="post" action="">
     <input type="submit">
   </form>
+  <script>
+    var deleteUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/$delete';
+    document.forms.deleteForm.action = deleteUrl;
+    document.forms.deleteForm.submit();
+  </script>
 </body>
 </html>

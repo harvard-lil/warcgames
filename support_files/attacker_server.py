@@ -9,12 +9,11 @@ except ImportError:
     from http.server import SimpleHTTPRequestHandler
     import socketserver as SocketServer
 
-current_dir = os.path.abspath(os.path.dirname(__file__))
-attacker_path = os.path.join(os.path.dirname(current_dir), 'challenges')
+challenges_dir = '/challenges/'
 attacker_port = 8090
 
 def main():
-    os.chdir(attacker_path)
+    os.chdir(challenges_dir)
     try:
         httpd = SocketServer.TCPServer(('', attacker_port), SimpleHTTPRequestHandler)
     except OSError:
