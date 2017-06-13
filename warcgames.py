@@ -1,8 +1,7 @@
 from __future__ import print_function
 
 import argparse
-from glob import glob
-
+import distutils.dir_util
 import os
 import socket
 import subprocess
@@ -22,17 +21,18 @@ import shutil
 
 # paths
 current_dir = os.path.abspath(os.path.dirname(__file__))
-archive_server_dir = os.path.join(current_dir, 'contrib/webrecorder')
+webrecorder_dir = os.path.join(current_dir, 'contrib/webrecorder')
+archive_server_dir = os.path.join(current_dir, 'archive_server_temp')
 support_files_dir = os.path.join(current_dir, 'support_files')
 init_script_path = os.path.join(archive_server_dir, 'init-default.sh')
 env_path = os.path.join(archive_server_dir, 'wr.env')
+data_dir = os.path.join(archive_server_dir, 'data')
 hosts_path = os.path.join(support_files_dir, 'hosts')
 attacker_files_dir = os.path.join(current_dir, 'attacker_files')
 user_config_path = os.path.join(support_files_dir, 'user_config.yml')
 challenges_dir = os.path.join(current_dir, 'challenges')
-orig_template_dir = os.path.join(archive_server_dir, 'webrecorder/webrecorder/templates')
-overlay_template_dir = os.path.join(support_files_dir, 'archive_server_templates/templates_src')
-output_template_dir = os.path.join(support_files_dir, 'archive_server_templates/templates')
+overlay_files_dir = os.path.join(support_files_dir, 'overlay_files')
+output_template_dir = os.path.join(archive_server_dir, 'webrecorder/webrecorder/templates')
 
 # constants
 PY2 = sys.version_info[0] < 3
@@ -40,6 +40,16 @@ APP_HOST = "warcgames.test:8089"
 DEFAULT_CONTENT_HOST = "warcgames-content.test:8089"
 ATTACKER_HOST = "attacker.test:8090"
 
+# https://stackoverflow.com/a/287944/307769
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 ### HELPERS ###
@@ -78,12 +88,6 @@ def import_path(module_name, path):
 ### STANDARD INIT SCRIPT ###
 
 def init():
-
-    # load git submodules
-    if not os.path.exists(init_script_path):
-        print("Loading git submodules ...")
-        subprocess.check_call(['git', 'submodule', 'init'])
-
     # check hosts file
     hosts_file = read_file(hosts_path)
     hosts = [line.split()[1] for line in hosts_file.strip().split("\n")]
@@ -94,20 +98,24 @@ def init():
             print("%s does not resolve. Please add the following to /etc/hosts:\n\n%s" % (host, hosts_file))
             sys.exit(1)
 
+    # load git submodules
+    if not os.path.exists(init_script_path):
+        print("Loading git submodules ...")
+        subprocess.check_call(['git', 'submodule', 'init'])
+
+    # attempt to update submodules
+    subprocess.call(['git', 'submodule', 'update', '--recursive', '--remote'])
+
+    # create temp archive server
+    if os.path.exists(archive_server_dir):
+        shutil.rmtree(archive_server_dir)
+    subprocess.check_call(['git', '-C', webrecorder_dir, 'checkout-index', '-a', '-f', '--prefix='+archive_server_dir.rstrip('/')+'/'])
+
     # init archive_server
-    if os.path.exists(env_path):
-        os.unlink(env_path)
-        shutil.rmtree(os.path.join(archive_server_dir, 'data'))
     subprocess.check_call(['sh', init_script_path])
 
-    # copy templates
-    if os.path.exists(output_template_dir):
-        shutil.rmtree(output_template_dir)
-    os.mkdir(output_template_dir)
-    for filename in glob(os.path.join(orig_template_dir, '*.html')):
-        shutil.copy(filename, output_template_dir)
-    for filename in glob(os.path.join(overlay_template_dir, '*.html')):
-        shutil.copy(filename, output_template_dir)
+    # copy overlay files
+    distutils.dir_util.copy_tree(overlay_files_dir, archive_server_dir)
 
     # default env
     set_env(
@@ -150,10 +158,11 @@ def configure_challenge(challenge):
 def launch(debug):
     os.chdir(archive_server_dir)
     docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'), 'up']
+    env = dict(os.environ, WARCGAMES_ROOT=current_dir)
     if debug:
-        subprocess.check_call(docker_command)
+        subprocess.check_call(docker_command, env=env)
     else:
-        subprocess.check_call(docker_command+['-d'])
+        subprocess.check_call(docker_command+['-d'], env=env)
         print("Archive server is now running:   http://%s/" % APP_HOST)
         print("Attack server is now running:    http://%s/" % ATTACKER_HOST)
         get_input("Press return to quit ...")

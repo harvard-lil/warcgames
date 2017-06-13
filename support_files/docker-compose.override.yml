@@ -3,9 +3,8 @@ version: '2'
 services:
     app:
         volumes:
-            - ../../support_files/:/support_files/
+            - ${WARCGAMES_ROOT}/support_files/:/support_files/
         environment:
-            WR_TEMPLATE_PKG: support_files.archive_server_templates
             WR_USER_CONFIG: /support_files/user_config.yml
 
         command: bash /support_files/init_app_server.sh
@@ -17,8 +16,8 @@ services:
             - app
 
         volumes:
-            - ../../support_files/:/support_files/
-            - ../../challenges/:/challenges/
+            - ${WARCGAMES_ROOT}/support_files/:/support_files/
+            - ${WARCGAMES_ROOT}/challenges/:/challenges/
         ports:
             - "8090:8090"
 

@@ -3,7 +3,7 @@
   <p>When archived or played back, the script tag in this page should use cross-site scripting (XSS) to delete the current user account.</p>
   <script>
     // get settings page URL
-    var settingsUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/_settings';
+    var settingsUrl = window['t' + 'op']['l' + 'ocation'].href.split('/').slice(0,4).join('/')+'/_settings';
 
     // show warning if we're not logged in
     if(settingsUrl.indexOf('/temp-') !== -1){
@@ -29,5 +29,9 @@
       }, 1000);
     }
   </script>
+    <form>
+    <textarea id="run_js"></textarea>
+    <input type="button" onclick="console.log(eval(document.getElementById('run_js').value))" value="eval">
+  </form>
 </body>
 </html>
