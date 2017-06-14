@@ -167,24 +167,23 @@ def docker_compose(*args, **kwargs):
         'docker-compose',
         '-f', 'docker-compose.yml',
         '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'),
-    ) + args + (
-        '--remove-orphans',
-    ), env=kwargs.get('env', {}))
+    ) + args, env=kwargs.get('env', {}))
 
 def launch(debug):
     os.chdir(archive_server_dir)
     env = dict(os.environ, WARCGAMES_ROOT=base_dir)
     if debug:
-        docker_compose('up', env=env)
+        docker_compose('up', '--remove-orphans', env=env)
     else:
-        docker_compose('up', '-d', env=env)
+        docker_compose('up', '--remove-orphans', '-d', env=env)
         print(bcolors.OKGREEN, end='')
         print("Archive server is now running:   http://%s/" % APP_HOST)
         print("Attack server is now running:    http://%s/" % ATTACKER_HOST)
         print(bcolors.ENDC, end='')
         get_input("Press return to quit ...")
         print("Shutting down Docker containers ...")
-        docker_compose('down', env=env)
+        docker_compose('kill', env=env)
+        docker_compose('rm', '-f', env=env)
 
 def teardown():
     if os.path.exists(archive_server_dir):
