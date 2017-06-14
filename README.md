@@ -18,10 +18,10 @@ Install and Run
 
 4) Add the following to /etc/hosts:
 ```
-    127.0.0.1   warcgames.test
-    127.0.0.1   content.warcgames.test
-    127.0.0.1   warcgames-content.test
-    127.0.0.1   attacker.test
+127.0.0.1   warcgames.test
+127.0.0.1   content.warcgames.test
+127.0.0.1   warcgames-content.test
+127.0.0.1   attacker.test
 ```
 4) `python warcgames.py` to see a list of challenges.
 
