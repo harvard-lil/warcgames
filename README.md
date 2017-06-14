@@ -12,14 +12,17 @@ Install and Run
 
 1) [Install Docker](https://docs.docker.com/installation/)
 
-2) `git clone https://github.com/jcushman/warcgames`
+2) `git clone https://github.com/harvard-lil/warcgames`
 
 3) `cd warcgames`
 
-4) `cat support_files/hosts | sudo tee -a /etc/hosts` 
-
-    (or otherwise arrange for the domains in the `support_files/hosts` file to resolve to localhost)
-
+4) Add the following to /etc/hosts:
+```
+    127.0.0.1   warcgames.test
+    127.0.0.1   content.warcgames.test
+    127.0.0.1   warcgames-content.test
+    127.0.0.1   attacker.test
+```
 4) `python warcgames.py` to see a list of challenges.
 
 5) `python warcgames.py same_domain` to start the first challenge.
