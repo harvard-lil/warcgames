@@ -1,0 +1,14 @@
+<html>
+<body>
+  <p>2 + 2 = 4</p>
+  <p>
+    When archived, <i>and only when archived</i>, the script tag in this page should modify the above text to indicate
+    that 2 + 2 = 5.
+  </p>
+  <script>
+    if(wbinfo){
+      document.body.innerHTML = document.body.innerHTML.replace('2 + 2 = 4', '2 + 2 = 5');
+    }
+  </script>
+</body>
+</html>

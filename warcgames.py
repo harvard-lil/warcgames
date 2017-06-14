@@ -20,17 +20,17 @@ except ImportError:
 import shutil
 
 # paths
-current_dir = os.path.abspath(os.path.dirname(__file__))
-webrecorder_dir = os.path.join(current_dir, 'contrib/webrecorder')
-archive_server_dir = os.path.join(current_dir, 'archive_server_temp')
-support_files_dir = os.path.join(current_dir, 'support_files')
+base_dir = os.path.abspath(os.path.dirname(__file__))
+webrecorder_dir = os.path.join(base_dir, 'contrib/webrecorder')
+archive_server_dir = os.path.join(base_dir, 'archive_server_temp')
+support_files_dir = os.path.join(base_dir, 'support_files')
 init_script_path = os.path.join(archive_server_dir, 'init-default.sh')
 env_path = os.path.join(archive_server_dir, 'wr.env')
 data_dir = os.path.join(archive_server_dir, 'data')
 hosts_path = os.path.join(support_files_dir, 'hosts')
-attacker_files_dir = os.path.join(current_dir, 'attacker_files')
+attacker_files_dir = os.path.join(base_dir, 'attacker_files')
 wr_config_path = os.path.join(archive_server_dir, 'webrecorder/webrecorder/config/wr.yaml')
-challenges_dir = os.path.join(current_dir, 'challenges')
+challenges_dir = os.path.join(base_dir, 'challenges')
 overlay_files_dir = os.path.join(support_files_dir, 'overlay_files')
 output_template_dir = os.path.join(archive_server_dir, 'webrecorder/webrecorder/templates')
 
@@ -125,7 +125,7 @@ def init():
 
 def configure_challenge(challenge):
     config = challenge['config']
-    print("Challenge: %s" % (config.short_message))
+    print("%sChallenge: %s%s" % (bcolors.WARNING, config.short_message, bcolors.ENDC))
 
     # write env
     set_env(
@@ -164,14 +164,16 @@ def configure_challenge(challenge):
 
 def launch(debug):
     os.chdir(archive_server_dir)
-    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'), 'up']
-    env = dict(os.environ, WARCGAMES_ROOT=current_dir)
+    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'), 'up', '--remove-orphans']
+    env = dict(os.environ, WARCGAMES_ROOT=base_dir)
     if debug:
         subprocess.check_call(docker_command, env=env)
     else:
         subprocess.check_call(docker_command+['-d'], env=env)
+        print(bcolors.OKGREEN, end='')
         print("Archive server is now running:   http://%s/" % APP_HOST)
         print("Attack server is now running:    http://%s/" % ATTACKER_HOST)
+        print(bcolors.ENDC, end='')
         get_input("Press return to quit ...")
         print("Shutting down Docker containers ...")
         subprocess.call(['docker-compose', 'down'])
@@ -194,40 +196,8 @@ def load_challenges():
         }
     return challenges
 
-
-# def challenge_same_domain():
-#     set_env(APP_HOST=wr_host, CONTENT_HOST=wr_host)
-#
-# def challenge_same_subdomain():
-#     set_env(APP_HOST=wr_host, CONTENT_HOST="content.%s" % wr_host)
-#
-# challenges = OrderedDict([
-#     ["same_domain", {
-#         "short_message": "Use cross-site scripting to control an archive user's account.",
-#         "message": """
-#             In this challenge, the archive server is configured to serve the user interface and captured web archive content
-#             on the same domain. This means that captured web content can fully control the user account of any
-#             logged-in user who views a capture.
-#
-#             Your mission is to edit attacker_files/challenge_same_domain.html so that, when
-#             http://attacker.test:8000/challenge_same_domain.html is captured and played back, it deletes all archives belonging
-#             to the current user.
-#         """
-#     }],
-#     ["same_subdomain", {
-#         "short_message": "Use session fixation to log in a viewer as another user.",
-#         "message": """
-#             In this challenge, the archive server is configured to serve the user dashboard at %s and
-#             captured web archive content at content.%s. This means that captured web content can use
-#             session fixation to log in a visitor to a web archive as a different user.
-#
-#             Your mission is to edit attacker_files/challenge_same_subdomain.html so that, when
-#             http://attacker.test:8000/challenge_same_domain.html is captured and played back, it deletes all archives belonging
-#             to the current user.
-#         """ % (wr_host, wr_host)
-#     }]
-# ])
-
+def challenge_list(challenges):
+    return "\n".join("* %s: %s" % (short_name, c['config'].short_message) for short_name, c in challenges.items())
 
 ### interface ###
 
@@ -248,7 +218,7 @@ def main():
                         action='store_true')
     args = parser.parse_args()
     if not args.challenge_name:
-        print("Please supply a challenge name:\n\n"+"\n".join("* %s: %s" % (short_name, c['config'].short_message) for short_name, c in challenges.items()))
+        print("Please supply a challenge name:\n\n"+challenge_list(challenges))
         sys.exit()
 
     init()

@@ -21,4 +21,4 @@ message = """
         <li><a href="https://defuse.ca/in-browser-port-scanning.htm">Port Scanning Local Network From a Web Browser - Defuse Security</a></li>
     </ul>
 """
-include_wombat = True
+include_wombat = True  # loading http://127.0.0.1 requires manual rewriting to get a correct answer otherwise, which is annoying

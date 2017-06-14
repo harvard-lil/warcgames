@@ -31,6 +31,7 @@ WARCgames currently offers the following challenges:
 
 <!-- The following is automatically populated --> 
 <!-- CHALLENGES -->
+* content_switch: Show different content for archived and live web.
 * csrf: Use cross-site request forgery to control an archive user's account.
 * port_scan: Discover services running on the archive server.
 * same_domain: Use cross-site scripting (XSS) to control an archive user's account.
@@ -57,6 +58,8 @@ Each challenge is a subdirectory under `challenges/`. Files:
 * `challenge.html`: file for user to edit when attempting challenge.
 * `sample_answer.html`: sample version of `challenge.html` that correctly completes the challenge.
 * `wsgi.py` (optional): custom wsgi file, used to monkeypatch app server.
+
+If you add a challenge, run `python support_files/dev_scripts.py update_files` to update the list in the README.
 
 Security Reporting
 ------------------
