@@ -162,22 +162,33 @@ def configure_challenge(challenge):
     if os.path.exists(wsgi_path):
         shutil.copy(wsgi_path, os.path.join(support_files_dir, 'challenge_wsgi.py'))
 
+def docker_compose(*args, **kwargs):
+    return subprocess.check_call((
+        'docker-compose',
+        '-f', 'docker-compose.yml',
+        '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'),
+    ) + args + (
+        '--remove-orphans',
+    ), env=kwargs.get('env', {}))
+
 def launch(debug):
     os.chdir(archive_server_dir)
-    docker_command = ['docker-compose', '-f', 'docker-compose.yml', '-f', os.path.join(support_files_dir, 'docker-compose.override.yml'), 'up', '--remove-orphans']
     env = dict(os.environ, WARCGAMES_ROOT=base_dir)
     if debug:
-        subprocess.check_call(docker_command, env=env)
+        docker_compose('up', env=env)
     else:
-        subprocess.check_call(docker_command+['-d'], env=env)
+        docker_compose('up', '-d', env=env)
         print(bcolors.OKGREEN, end='')
         print("Archive server is now running:   http://%s/" % APP_HOST)
         print("Attack server is now running:    http://%s/" % ATTACKER_HOST)
         print(bcolors.ENDC, end='')
         get_input("Press return to quit ...")
         print("Shutting down Docker containers ...")
-        subprocess.call(['docker-compose', 'down'])
+        docker_compose('down', env=env)
 
+def teardown():
+    if os.path.exists(archive_server_dir):
+        shutil.rmtree(archive_server_dir)
 
 ### CHALLENGES ###
 
@@ -221,10 +232,12 @@ def main():
         print("Please supply a challenge name:\n\n"+challenge_list(challenges))
         sys.exit()
 
-    init()
-    configure_challenge(challenges[args.challenge_name])
-    launch(debug=args.debug)
-
+    try:
+        init()
+        configure_challenge(challenges[args.challenge_name])
+        launch(debug=args.debug)
+    finally:
+        teardown()
 
 
 if __name__ == '__main__':
