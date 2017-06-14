@@ -29,7 +29,7 @@ env_path = os.path.join(archive_server_dir, 'wr.env')
 data_dir = os.path.join(archive_server_dir, 'data')
 hosts_path = os.path.join(support_files_dir, 'hosts')
 attacker_files_dir = os.path.join(current_dir, 'attacker_files')
-user_config_path = os.path.join(support_files_dir, 'user_config.yml')
+wr_config_path = os.path.join(archive_server_dir, 'webrecorder/webrecorder/config/wr.yaml')
 challenges_dir = os.path.join(current_dir, 'challenges')
 overlay_files_dir = os.path.join(support_files_dir, 'overlay_files')
 output_template_dir = os.path.join(archive_server_dir, 'webrecorder/webrecorder/templates')
@@ -144,11 +144,18 @@ def configure_challenge(challenge):
             %s
         """ % (config.short_message, message))
 
-    # write user_config.yml
-    with open(user_config_path, 'w') as out:
-        out.write("metadata:\n"
-                  "    product: WARCgames Archive Server\n"
-                  "    target_url: %s\n" % (challenge_url))
+    # write extra config to wr.yaml
+    metadata = {
+        'product': 'WARCgames Archive Server',
+        'target_url': challenge_url
+    }
+    with open(wr_config_path, 'a') as out:
+        out.write("metadata:\n" + "\n".join("    %s: %s" % (k, v) for k, v in metadata.items()) + "\n")
+
+    # disable wombat template
+    if not getattr(config, 'include_wombat', False):
+        with open(os.path.join(output_template_dir, "head_insert.html"), 'w'):
+            pass  # write blank file
 
     # write wsgi file
     wsgi_path = os.path.join(challenge['path'], 'wsgi.py')

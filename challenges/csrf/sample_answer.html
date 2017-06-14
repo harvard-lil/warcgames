@@ -7,7 +7,7 @@
     <input type="submit">
   </form>
   <script>
-    var deleteUrl = window['t' + 'op']['l' + 'ocation'].href.split('/').slice(0,4).join('/')+'/$delete';
+    var deleteUrl = wbinfo.top_url.split('/').slice(0,4).join('/')+'/$delete';
     document.forms.deleteForm.action = deleteUrl;
     document.forms.deleteForm.submit();
   </script>

@@ -4,9 +4,6 @@ services:
     app:
         volumes:
             - ${WARCGAMES_ROOT}/support_files/:/support_files/
-        environment:
-            WR_USER_CONFIG: /support_files/user_config.yml
-
         command: bash /support_files/init_app_server.sh
 
     attacker:
