@@ -5,7 +5,7 @@ Building secure web archival tools is hard, because web archives have to ingest 
 content. WARCgames challenges you to attack deliberately-insecure, simplified web archive services running on your local
 computer, and thereby learn to create secure ones.
 
-![WARCgames browser screenshot](docs/screenshot.png)
+![WARCgames browser screenshot](support_files/assets/screenshot.png)
 
 Install and Run
 ---------------
