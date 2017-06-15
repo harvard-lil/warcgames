@@ -12,7 +12,7 @@ message = """
     <ul>
         <li>Can you scan for other reachable IP addresses on the same network?</li>
         <li>Can you take advantage of a service you discover between port 8000 and 8100?</li>
-    </p>
+    </ul>
     
     <p><b>Learn more:</b></p>
     <ul>
