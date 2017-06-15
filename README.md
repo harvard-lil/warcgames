@@ -1,9 +1,22 @@
 WARCgames
 =========
 
-Building secure web archival tools is hard, because web archives have to ingest and play back so much attacker-submitted
-content. WARCgames challenges you to attack deliberately-insecure, simplified web archive services running on your local
-computer, and thereby learn to create secure ones.
+*With High Fidelity Comes Great Responsibility*
+
+As web archiving tools adapt to the Javascript-driven web with headless browser capture, interactive capture, 
+and high fidelity playback, they also become more difficult to secure. Weaknesses in web archiving tools themselves can
+be exploited to steal user secrets, fake the historical record, or delete valuable record. Once an exploit enters a web
+archive, it can harm users or the archive itself with every access.
+
+We (the creators  of [Webrecorder](https://webrecorder.io/) and [Perma.cc](https://perma.cc/)) want to demonstrate these
+risks and learn to improve our defenses against them. We want to share what we know and learn from you as well. 
+That's why WARCgames exists.
+
+This repository provides you with a local version of Webrecorder that has not been patched to fix known exploits,
+and a number of challenges for you learn how they might apply to web archives in general.
+
+WARCgames was first introduced at [IIPC2017](http://netpreserve.org/wac2017/) in London. 
+(See [slides](http://labs.rhizome.org/presentations/security.html) for the talk.)
 
 ![WARCgames browser screenshot](support_files/assets/screenshot.png)
 
@@ -46,7 +59,7 @@ WARCgames currently offers the following challenges:
 Tips and Hints
 --------------
 
-**Faster debugging**
+### Faster debugging
 
 Solving challenges often requires you to test the security limits of Javascript run from `challenge.html` inside
 the web archive. You can speed up your experimentation by adding something like this to your `challenge.html`:
@@ -64,9 +77,11 @@ correct security context.
 Contributing Challenges
 -----------------------
 
-Please file an issue if you would like WARCgames to support a new challenge.
+Please file [an issue](issues) tagged with "proposed challenge" if you would like WARCgames to support a new challenge.
 
 Even better, send a pull request!
+
+### Challenge format
 
 Each challenge is a subdirectory under `challenges/`. Files:
 
@@ -87,3 +102,6 @@ Security Reporting
 
 If you discover a possible security issue in the underlying Webrecorder software while working on a challenge, please 
 report it to support@webrecorder.io rather than filing an issue on this project.
+
+[![Webrecorder logo](support_files/assets/webrecorder_logo.png)](https://webrecorder.io/)
+[![Perma logo](support_files/assets/perma_logo.png)](https://perma.cc/)
