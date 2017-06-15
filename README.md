@@ -103,5 +103,4 @@ Security Reporting
 If you discover a possible security issue in the underlying Webrecorder software while working on a challenge, please 
 report it to support@webrecorder.io rather than filing an issue on this project.
 
-[![Webrecorder logo](support_files/assets/webrecorder_logo.png)](https://webrecorder.io/)
-[![Perma logo](support_files/assets/perma_logo.png)](https://perma.cc/)
+<img src="support_files/assets/webrecorder_logo.png" alt="Webrecorder logo" style="float: left; width: 33%;"/> <img src="support_files/assets/perma_logo.png" alt="Perma logo" style="width: 200px;"/>
