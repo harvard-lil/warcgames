@@ -43,6 +43,24 @@ WARCgames currently offers the following challenges:
 
 (This is the output of `python warcgames.py`)
 
+Tips and Hints
+--------------
+
+**Faster debugging**
+
+Solving challenges often requires you to test the security limits of Javascript run from `challenge.html` inside
+the web archive. You can speed up your experimentation by adding something like this to your `challenge.html`:
+
+```
+  <form>
+    <textarea id="run_js"></textarea>
+    <input type="button" onclick="console.log(eval(document.getElementById('run_js').value))" value="eval">
+  </form>
+```
+
+This lets you quickly try different Javascript techniques and log the results, while making sure you're running in the
+correct security context.
+
 Contributing Challenges
 -----------------------
 
