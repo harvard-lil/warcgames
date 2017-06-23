@@ -1,4 +1,4 @@
 [submodule "webrecorder"]
 	path = contrib/webrecorder
 	url = https://github.com/webrecorder/webrecorder
-	branch = csrf-token
+	branch = master
